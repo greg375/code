@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code de la route — jusqu'au 6 octobre</title>
+<meta name="description" content="Suivi quotidien de préparation à l'examen du code de la route, jusqu'au 6 octobre.">
+<meta name="theme-color" content="#191c1f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23191c1f'/%3E%3Cpath d='M16 5l10 22H6z' fill='%23c4122f'/%3E%3Cpath d='M16 11l6 13H10z' fill='%23ede9dc'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --asphalt:#191c1f;
+    --asphalt-2:#22262a;
+    --asphalt-3:#2c3136;
+    --hairline:rgba(237,233,220,.11);
+    --marking:#ede9dc;
+    --body:#ccd3d9;
+    --muted:#9aa3ab;
+    --red:#d4213c;
+    --blue:#2b7fd4;
+    --yellow:#f0c419;
+    --green:#3d9970;
+    --t-1:.75rem;
+    --t-2:.8125rem;
+    --t-3:.875rem;
+    --t-4:1rem;
+    --t-5:1.25rem;
+    --measure:66ch;
+    --radius:3px;
+    --gap:clamp(1rem,3vw,1.75rem);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--asphalt);color:var(--marking);
+    font-family:Karla,system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:Archivo,system-ui,sans-serif;letter-spacing:-.015em}
+  .num{font-family:Archivo,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+  .wrap{max-width:58rem;margin:0 auto;padding:var(--gap)}
+  :focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+
+  /* ---------- header ---------- */
+  header{border-bottom:1px solid var(--asphalt-3)}
+  .head-grid{display:flex;flex-wrap:wrap;gap:1.25rem 2rem;align-items:flex-end;justify-content:space-between}
+  h1{font-size:clamp(1.5rem,4.5vw,2.35rem);font-weight:700;margin:0 0 .25rem;line-height:1.05}
+  .sub{color:var(--muted);margin:0;font-size:var(--t-4);max-width:58ch}
+  .countdown{display:flex;align-items:baseline;gap:.6rem;border-left:3px solid var(--yellow);padding-left:.9rem}
+  .countdown b{font-family:Archivo;font-size:2.5rem;font-weight:700;line-height:.85;font-variant-numeric:tabular-nums}
+  .countdown span{color:var(--muted);font-size:var(--t-2);max-width:7.5rem;line-height:1.3}
+
+  /* ---------- road ---------- */
+  .road{
+    margin-top:1.75rem;position:relative;background:var(--asphalt-2);
+    border-top:2px solid var(--asphalt-3);border-bottom:2px solid var(--asphalt-3);
+    padding:1.1rem 0;overflow-x:auto;overscroll-behavior-x:contain;
+  }
+  .road::before{
+    content:"";position:absolute;top:50%;left:0;right:0;height:2px;transform:translateY(-50%);
+    background:repeating-linear-gradient(90deg,var(--muted) 0 14px,transparent 14px 30px);opacity:.4;
+  }
+  .road-inner{
+    position:relative;display:flex;gap:.3rem;min-width:max-content;
+    padding-left:max(var(--gap), calc((100vw - 58rem) / 2 + var(--gap)));
+    padding-right:var(--gap);
+  }
+  .mark{
+    width:1.6rem;height:1.6rem;border-radius:50%;flex:none;padding:0;
+    display:grid;place-items:center;font-family:Archivo;font-size:var(--t-1);font-weight:600;
+    font-variant-numeric:tabular-nums;
+    background:var(--asphalt);border:2px solid var(--asphalt-3);color:var(--muted);cursor:pointer;
+  }
+  .mark:hover{color:var(--marking);border-color:var(--muted)}
+  .mark[data-type="test"]{border-color:var(--red)}
+  .mark[data-done="1"]{background:var(--green);border-color:var(--green);color:#0d1a14}
+  .mark[aria-current="date"]{border-color:var(--yellow);color:var(--yellow);box-shadow:0 0 0 3px rgba(240,196,25,.2)}
+  .mark[data-type="goal"]{width:2.2rem;border-radius:var(--radius);background:var(--marking);border-color:var(--marking);color:var(--asphalt)}
+
+  /* ---------- meter ---------- */
+  .meter{display:flex;align-items:center;gap:.9rem;margin-top:1.15rem;font-size:var(--t-3);color:var(--muted)}
+  .meter-track{flex:1;height:6px;background:var(--asphalt-3);border-radius:99px;overflow:hidden}
+  .meter-fill{display:block;height:100%;width:0;background:var(--green);transition:width .35s ease}
+  .jump{
+    color:var(--muted);font-size:var(--t-3);text-decoration:none;border-bottom:1px solid var(--asphalt-3);
+    padding-bottom:1px;white-space:nowrap;
+  }
+  .jump:hover{color:var(--yellow);border-color:var(--yellow)}
+
+  /* ---------- sections ---------- */
+  section{padding-top:2.75rem}
+  h2{font-size:var(--t-5);font-weight:600;margin:0 0 1.2rem;letter-spacing:-.02em}
+  h2::after{content:"";display:block;width:2.5rem;height:2px;background:var(--asphalt-3);margin-top:.6rem}
+
+  /* ---------- phase ---------- */
+  .phase{display:flex;align-items:center;gap:.85rem;margin:2rem 0 .85rem;flex-wrap:wrap}
+  .phase:first-of-type{margin-top:0}
+  .phase h3{margin:0;font-size:var(--t-4);font-weight:600;flex:0 1 auto;min-width:0}
+  .phase-bar{flex:1 0 1.5rem;height:1px;background:var(--asphalt-3)}
+  .phase em{font-style:normal;color:var(--muted);font-size:var(--t-2);flex:1 1 14rem;min-width:0}
+
+  /* ---------- day ---------- */
+  .day{border:1px solid var(--asphalt-3);border-radius:var(--radius);margin-bottom:.5rem;background:var(--asphalt-2)}
+  .day[open]{background:var(--asphalt-3);border-color:#3a4046}
+  .day--today{border-color:var(--yellow)}
+  .day summary{display:flex;gap:.85rem;align-items:center;padding:.8rem 1rem;cursor:pointer;list-style:none}
+  .day summary::-webkit-details-marker{display:none}
+  .day summary::marker{content:""}
+  .sign{flex:none;width:1.55rem;height:1.55rem;display:grid;place-items:center}
+  .sign svg{display:block;width:100%;height:100%}
+  .day-main{flex:1;min-width:0}
+  .day-meta{display:flex;align-items:baseline;gap:.5rem;font-size:var(--t-1);color:var(--muted);line-height:1.2}
+  .day-meta .num{font-weight:700;color:var(--body)}
+  .day-title{font-weight:500;font-size:var(--t-4);line-height:1.35;margin-top:.1rem;max-width:var(--measure)}
+  .day-dur{color:var(--body);white-space:nowrap}
+  .day-dur::before{content:"";display:inline-block;width:.3rem;height:.3rem;border-radius:50%;background:var(--asphalt-3);margin-right:.45rem;vertical-align:.12em}
+  .day-count{flex:none;font-family:Archivo;font-size:var(--t-1);color:var(--muted);font-variant-numeric:tabular-nums}
+  .day-count[data-full="1"]{color:var(--green)}
+  .day-body{padding:.9rem 1rem 1.1rem;border-top:1px solid var(--hairline);margin-top:.15rem}
+
+  ul.tasks{list-style:none;margin:0;padding:0}
+  label.task{display:flex;gap:.7rem;align-items:flex-start;padding:.42rem .3rem;border-radius:var(--radius);cursor:pointer;font-size:var(--t-3)}
+  label.task:hover{background:rgba(237,233,220,.05)}
+  label.task span{max-width:var(--measure)}
+  label.task input{
+    appearance:none;-webkit-appearance:none;margin:.2rem 0 0;width:1.05rem;height:1.05rem;flex:none;
+    border:1.5px solid var(--muted);border-radius:2px;background:transparent;cursor:pointer;position:relative;
+  }
+  label.task input:checked{background:var(--green);border-color:var(--green)}
+  label.task input:checked::after{
+    content:"";position:absolute;left:.29rem;top:.09rem;width:.24rem;height:.5rem;
+    border:solid #0d1a14;border-width:0 2px 2px 0;transform:rotate(45deg);
+  }
+  label.task input:checked + span{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(154,163,171,.5)}
+  .focus{margin:.95rem 0 0;padding:.75rem .9rem;max-width:var(--measure);background:var(--asphalt);border-left:3px solid var(--blue);
+    font-size:var(--t-3);color:var(--body);border-radius:0 var(--radius) var(--radius) 0}
+  .focus--warn{border-left-color:var(--red)}
+  .focus--soft{border-left-color:var(--yellow)}
+  .focus b{color:var(--marking);font-weight:700}
+
+  /* ---------- scores ---------- */
+  .table-scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:var(--t-3);min-width:19rem}
+  th,td{text-align:left;padding:.6rem .5rem;border-bottom:1px solid var(--asphalt-3)}
+  th{color:var(--muted);font-weight:500;font-size:var(--t-1)}
+  td:first-child{white-space:nowrap}
+  .bar-cell{width:42%}
+  .bar{display:block;height:8px;background:var(--asphalt-3);border-radius:99px;position:relative;overflow:hidden}
+  .bar-fill{position:absolute;left:0;top:0;bottom:0;background:var(--blue);width:0;transition:width .3s ease}
+  .bar-fill[data-pass="1"]{background:var(--green)}
+  .bar-goal{position:absolute;left:87.5%;top:0;bottom:0;width:2px;background:var(--yellow)}
+  input.score{
+    width:3.7rem;background:var(--asphalt);color:var(--marking);border:1px solid var(--asphalt-3);
+    border-radius:2px;padding:.34rem .4rem;font-family:Archivo;font-size:var(--t-3);text-align:center;
+    font-variant-numeric:tabular-nums;
+  }
+  .of40{color:var(--muted)}
+  .trajectory{color:var(--muted);font-size:var(--t-3);margin:1rem 0 0;max-width:var(--measure)}
+
+
+  /* ---------- antiseche ---------- */
+  .sheet{columns:18rem;column-gap:.55rem}
+  .card{background:var(--asphalt-2);border:1px solid var(--asphalt-3);border-radius:var(--radius);
+    padding:.85rem .95rem 1rem;border-top:3px solid var(--asphalt-3);
+    break-inside:avoid;page-break-inside:avoid;margin:0 0 .55rem;display:block}
+  .card--red{border-top-color:var(--red)}
+  .card--blue{border-top-color:var(--blue)}
+  .card--yellow{border-top-color:var(--yellow)}
+  .card--green{border-top-color:var(--green)}
+  .card h3{margin:0 0 .6rem;font-size:var(--t-4);font-weight:600;color:var(--marking)}
+  .card .row{display:flex;justify-content:space-between;align-items:baseline;gap:.75rem;
+    padding:.3rem 0;border-bottom:1px solid var(--hairline);font-size:var(--t-3);color:var(--muted)}
+  .card .row:last-of-type{border-bottom:none}
+  .card .row span{min-width:0}
+  .card .row b{font-family:Archivo,system-ui,sans-serif;font-weight:600;color:var(--marking);flex:none;
+    text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .card .hit{margin:.7rem 0 0;padding-top:.6rem;border-top:1px dashed var(--asphalt-3);
+    font-size:var(--t-2);line-height:1.6;color:var(--body)}
+  .card .hit b{color:var(--marking);font-weight:700}
+  table.mini{width:100%;min-width:0;font-size:var(--t-2);margin:0 0 .2rem}
+  table.mini th,table.mini td{padding:.28rem .2rem;border-bottom:1px solid var(--hairline);text-align:right}
+  table.mini th:first-child,table.mini td:first-child{text-align:left;color:var(--muted);white-space:nowrap}
+  table.mini thead th{color:var(--muted);font-size:var(--t-1);font-weight:500;border-bottom-color:var(--asphalt-3)}
+  table.mini tbody td{font-family:Archivo,system-ui,sans-serif;font-weight:600;font-variant-numeric:tabular-nums}
+  table.mini tbody tr:last-child td{border-bottom:none}
+
+  /* ---------- numbers ---------- */
+  .numbers{display:grid;grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));gap:.5rem;list-style:none;padding:0;margin:0;counter-reset:num}
+  .numbers li{
+    counter-increment:num;background:var(--asphalt-2);border:1px solid var(--asphalt-3);
+    border-radius:var(--radius);padding:.7rem .85rem .7rem 2.5rem;position:relative;font-size:var(--t-3);color:var(--body);
+  }
+  .numbers li::before{content:counter(num);position:absolute;left:.85rem;top:.72rem;
+    font-family:Archivo;font-weight:700;font-size:var(--t-1);color:var(--muted);font-variant-numeric:tabular-nums}
+  .numbers b{font-family:Archivo;color:var(--yellow);font-weight:700}
+
+  /* ---------- rules ---------- */
+  .rules{display:grid;gap:.7rem}
+  .rule{border-left:3px solid var(--asphalt-3);padding:.15rem 0 .15rem .95rem;max-width:var(--measure);font-size:var(--t-3);color:var(--body)}
+  .rule b{display:block;color:var(--marking);font-family:Archivo;font-weight:600;margin-bottom:.15rem}
+
+  /* ---------- footer ---------- */
+  footer{margin-top:3rem;padding:1.5rem 0 2.5rem;border-top:1px solid var(--asphalt-3);color:var(--muted);font-size:var(--t-2)}
+  .btn{background:transparent;color:var(--muted);border:1px solid var(--asphalt-3);border-radius:2px;
+    padding:.45rem .85rem;font-family:Karla;font-size:var(--t-2);cursor:pointer}
+  .btn:hover{color:var(--marking);border-color:var(--muted)}
+  .note{margin:.9rem 0 0;max-width:var(--measure)}
+
+  main.wrap{padding-top:0}
+
+  @media (max-width:34rem){
+    .head-grid{gap:.9rem}
+    .countdown b{font-size:2.1rem}
+    .road{margin-top:1.15rem;padding:.9rem 0}
+    section{padding-top:2.1rem}
+  }
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  @media print{
+    :root{--asphalt:#fff;--asphalt-2:#fff;--asphalt-3:#ccc;--hairline:#ddd;
+           --marking:#000;--body:#222;--muted:#555;--blue:#0b5ba6;--green:#0a6b4a}
+    body{background:#fff;color:#000;font-size:11pt}
+    .road,.meter,.jump,footer .btn,#regles{display:none}
+    .card,.numbers li{break-inside:avoid;page-break-inside:avoid;border-color:#ccc}
+    #antiseche{page-break-before:always}
+    .day{break-inside:avoid;page-break-inside:avoid;border-color:#ccc}
+    .day summary{cursor:default}
+    details:not([open]) > .day-body{display:block}
+    input.score{border:1px solid #999}
+    label.task input{border-color:#666}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="head-grid">
+      <div>
+        <h1>Code de la route</h1>
+        <p class="sub">Examen le mardi 6 octobre. Il faut 35 bonnes réponses sur 40.</p>
+      </div>
+      <p class="countdown"><b class="num" id="cd">—</b><span id="cd-label">jours restants</span></p>
+    </div>
+  </div>
+  <nav class="road" id="road-scroll" aria-label="Progression jour par jour">
+    <div class="road-inner" id="road"></div>
+  </nav>
+  <div class="wrap" style="padding-top:0">
+    <p class="meter">
+      <span id="meter-text">0 / 0 tâches</span>
+      <span class="meter-track"><span class="meter-fill" id="meter-fill"></span></span>
+      <a class="jump" href="#today" id="jump">Aujourd'hui</a>
+    </p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="jours">
+    <h2>Le programme</h2>
+    <div id="days"></div>
+  </section>
+
+  <section id="suivi">
+    <h2>Examens blancs</h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th scope="col">Jour</th><th scope="col">Score</th><th scope="col" class="bar-cell">Position par rapport au seuil</th></tr></thead>
+        <tbody id="scores"></tbody>
+      </table>
+    </div>
+    <p class="trajectory">Trajectoire visée : environ 26 au premier diagnostic, 30 au deuxième, 33 au troisième, 35 ou plus sur les deux derniers. Le repère jaune marque les 35 sur 40. Le repère jaune marque les 35 sur 40.</p>
+  </section>
+
+  <section id="antiseche">
+    <h2>L'antisèche</h2>
+    <div class="sheet">
+
+      <article class="card card--red">
+        <h3>Vitesses</h3>
+        <table class="mini">
+          <thead><tr><th></th><th>sec</th><th>pluie</th><th>proba.</th></tr></thead>
+          <tbody>
+            <tr><td>Agglomération</td><td>50</td><td>50</td><td>50</td></tr>
+            <tr><td>Route</td><td>80</td><td>80</td><td>80</td></tr>
+            <tr><td>2×2 séparées</td><td>110</td><td>100</td><td>100</td></tr>
+            <tr><td>Autoroute</td><td>130</td><td>110</td><td>110</td></tr>
+          </tbody>
+        </table>
+        <p class="hit">Visibilité &lt; 50 m → <b>50 km/h partout</b>, autoroute comprise. Voie de gauche sur autoroute : <b>80 km/h minimum</b> par temps clair.</p>
+      </article>
+
+      <article class="card card--red">
+        <h3>Distances</h3>
+        <div class="row"><span>Sécurité</span><b>2 secondes</b></div>
+        <div class="row"><span>Arrêt à 50 km/h</span><b>≈ 28 m</b></div>
+        <div class="row"><span>Arrêt à 90 km/h</span><b>≈ 70 m</b></div>
+        <div class="row"><span>Arrêt à 130 km/h</span><b>≈ 130 m</b></div>
+        <div class="row"><span>Réaction</span><b>1 s</b></div>
+        <div class="row"><span>En tunnel</span><b>50 m</b></div>
+        <p class="hit">Sur sol mouillé, la distance de <b>freinage double</b>. La distance de réaction, elle, ne dépend que de la vitesse : 14 m à 50 km/h.</p>
+      </article>
+
+      <article class="card card--red">
+        <h3>Alcool et stupéfiants</h3>
+        <div class="row"><span>Limite sang</span><b>0,5 g/l</b></div>
+        <div class="row"><span>Limite air expiré</span><b>0,25 mg/l</b></div>
+        <div class="row"><span>Probatoire — sang</span><b>0,2 g/l</b></div>
+        <div class="row"><span>Probatoire — air</span><b>0,10 mg/l</b></div>
+        <div class="row"><span>Un verre</span><b>+0,20 à 0,25 g/l</b></div>
+        <div class="row"><span>Élimination</span><b>0,10 à 0,15 g/l / h</b></div>
+        <div class="row"><span>0,5 à 0,8 g/l</span><b>135 € · 6 pts</b></div>
+        <div class="row"><span>0,8 g/l et plus</span><b>délit · 4 500 €</b></div>
+        <p class="hit">Rien n'accélère l'élimination : ni café, ni douche, ni sport. Stupéfiants : <b>tolérance zéro</b>, délit dès la moindre trace.</p>
+      </article>
+
+      <article class="card card--blue">
+        <h3>Panneaux</h3>
+        <div class="row"><span>Triangle rouge</span><b>danger</b></div>
+        <div class="row"><span>Rond rouge</span><b>interdiction</b></div>
+        <div class="row"><span>Rond bleu</span><b>obligation</b></div>
+        <div class="row"><span>Carré bleu</span><b>indication</b></div>
+        <div class="row"><span>Implantation agglo</span><b>50 m</b></div>
+        <div class="row"><span>Hors agglo</span><b>150 m</b></div>
+        <div class="row"><span>Autoroute</span><b>200 m</b></div>
+        <p class="hit">Hiérarchie : <b>agent → feux → panneaux → marquage au sol</b>. Les panneaux temporaires jaunes priment sur les permanents.</p>
+      </article>
+
+      <article class="card card--blue">
+        <h3>Priorités et marquages</h3>
+        <div class="row"><span>Par défaut</span><b>priorité à droite</b></div>
+        <div class="row"><span>STOP</span><b>arrêt total</b></div>
+        <div class="row"><span>Cédez le passage</span><b>ralentir</b></div>
+        <div class="row"><span>Giratoire (panneau)</span><b>l'anneau d'abord</b></div>
+        <div class="row"><span>Sans panneau</span><b>priorité à droite</b></div>
+        <div class="row"><span>Stationnement interdit</span><b>1 barre</b></div>
+        <div class="row"><span>Arrêt + stationnement</span><b>2 barres croisées</b></div>
+        <p class="hit">Ligne mixte : je respecte <b>la ligne la plus proche de moi</b>. Si l'arrêt est interdit, le stationnement l'est aussi — l'inverse est faux.</p>
+      </article>
+
+      <article class="card card--blue">
+        <h3>Feux du véhicule</h3>
+        <div class="row"><span>Position</span><b>n'éclairent pas</b></div>
+        <div class="row"><span>Croisement</span><b>≈ 30 m</b></div>
+        <div class="row"><span>Route</span><b>≈ 100 m</b></div>
+        <div class="row"><span>Antibrouillard AV</span><b>brouillard, neige, forte pluie</b></div>
+        <div class="row"><span>Antibrouillard AR</span><b>brouillard ou neige</b></div>
+        <p class="hit">L'antibrouillard arrière est <b>interdit sous la pluie seule</b>. Ébloui : ralentir, regarder le bord droit, ne pas fixer les phares.</p>
+      </article>
+
+      <article class="card card--yellow">
+        <h3>Permis à points</h3>
+        <div class="row"><span>Capital plein</span><b>12 points</b></div>
+        <div class="row"><span>Probatoire</span><b>6 pts · 3 ans</b></div>
+        <div class="row"><span>Probatoire en AAC</span><b>6 pts · 2 ans</b></div>
+        <div class="row"><span>Gain annuel</span><b>+2 pts · +3 en AAC</b></div>
+        <div class="row"><span>1 point perdu</span><b>récupéré à 6 mois</b></div>
+        <div class="row"><span>Capital reconstitué</span><b>2 ans sans faute</b></div>
+        <div class="row"><span>Stage volontaire</span><b>4 pts · 1×/an</b></div>
+        <div class="row"><span>Zéro point</span><b>permis invalidé</b></div>
+        <p class="hit">En probatoire, une perte de <b>3 points ou plus</b> déclenche un stage obligatoire.</p>
+      </article>
+
+      <article class="card card--yellow">
+        <h3>Sanctions</h3>
+        <div class="row"><span>Excès &lt; 20 hors agglo</span><b>68 € · 1 pt</b></div>
+        <div class="row"><span>Excès &lt; 20 en agglo</span><b>135 € · 1 pt</b></div>
+        <div class="row"><span>Excès 20 à 30</span><b>135 € · 2 pts</b></div>
+        <div class="row"><span>Excès 30 à 40</span><b>135 € · 3 pts</b></div>
+        <div class="row"><span>Excès 40 à 50</span><b>135 € · 4 pts</b></div>
+        <div class="row"><span>Excès 50 et plus</span><b>1 500 € · 6 pts</b></div>
+        <div class="row"><span>Feu rouge, STOP</span><b>135 € · 4 pts</b></div>
+        <div class="row"><span>Ceinture</span><b>135 € · 3 pts</b></div>
+        <div class="row"><span>Téléphone en main</span><b>135 € · 3 pts</b></div>
+        <p class="hit">Les <b>oreillettes et kits à écouteurs sont interdits</b> au même titre que le téléphone tenu en main.</p>
+      </article>
+
+      <article class="card card--green">
+        <h3>Autres usagers</h3>
+        <div class="row"><span>Dépasser un vélo</span><b>1 m</b></div>
+        <div class="row"><span>… hors agglo</span><b>1,50 m</b></div>
+        <div class="row"><span>Trottinettes</span><b>25 km/h · 14 ans</b></div>
+        <div class="row"><span>Interfiles moto</span><b>50 km/h max</b></div>
+        <div class="row"><span>Bus quittant l'arrêt</span><b>je cède</b></div>
+        <div class="row"><span>Tramway</span><b>toujours prioritaire</b></div>
+        <p class="hit">Piéton engagé ou manifestant l'intention de traverser : je cède, sous peine de <b>135 € et 6 points</b>. L'interfiles n'est autorisé qu'entre les <b>deux voies les plus à gauche</b>.</p>
+      </article>
+
+      <article class="card card--green">
+        <h3>Pneus et mécanique</h3>
+        <div class="row"><span>Sculpture minimale</span><b>1,6 mm</b></div>
+        <div class="row"><span>Écart sur un essieu</span><b>5 mm max</b></div>
+        <div class="row"><span>Pneus neufs</span><b>à l'arrière</b></div>
+        <div class="row"><span>Pression</span><b>à froid</b></div>
+        <div class="row"><span>Voyant rouge</span><b>je m'arrête</b></div>
+        <div class="row"><span>Voyant orange</span><b>à faire contrôler</b></div>
+        <div class="row"><span>Contrôle technique</span><b>4 ans, puis 2 ans</b></div>
+        <div class="row"><span>Contre-visite</span><b>2 mois</b></div>
+        <p class="hit">L'<b>ABS</b> empêche le blocage des roues et permet de continuer à diriger — il ne raccourcit pas forcément la distance de freinage.</p>
+      </article>
+
+      <article class="card card--green">
+        <h3>Sécurité et enfants</h3>
+        <div class="row"><span>Retenue enfant</span><b>jusqu'à 10 ans</b></div>
+        <div class="row"><span>Dos à la route, avant</span><b>airbag désactivé</b></div>
+        <div class="row"><span>À bord, obligatoire</span><b>gilet + triangle</b></div>
+        <div class="row"><span>Chargement &gt; 1 m</span><b>réfléchissant</b></div>
+        <div class="row"><span>Éthylotest</span><b>plus obligatoire</b></div>
+        <p class="hit">Le gilet se trouve <b>dans l'habitacle</b> et s'enfile <b>avant</b> de sortir. L'airbag ne remplace jamais la ceinture.</p>
+      </article>
+
+      <article class="card card--yellow">
+        <h3>Vision et documents</h3>
+        <div class="row"><span>Acuité minimale</span><b>5/10 binoculaire</b></div>
+        <div class="row"><span>Correction requise</span><b>code 01</b></div>
+        <div class="row"><span>Avec 10/10 : agglo</span><b>50 m</b></div>
+        <div class="row"><span>Limitation hors agglo</span><b>150 m</b></div>
+        <div class="row"><span>Direction autoroute</span><b>200 m</b></div>
+        <div class="row"><span>Assurance minimale</span><b>resp. civile</b></div>
+        <div class="row"><span>Défaut d'assurance</span><b>délit · 3 750 €</b></div>
+        <div class="row"><span>Changement titulaire</span><b>sous 1 mois</b></div>
+      </article>
+
+      <article class="card card--green">
+        <h3>Écologie</h3>
+        <div class="row"><span>Frein moteur</span><b>consommation nulle</b></div>
+        <div class="row"><span>Climatisation</span><b>jusqu'à +20 %</b></div>
+        <div class="row"><span>Coffre de toit</span><b>+10 à 20 %</b></div>
+        <div class="row"><span>10 km/h de moins</span><b>≈ 5 % économisés</b></div>
+        <div class="row"><span>Vignettes Crit'Air</span><b>6, de 0 à 5</b></div>
+        <p class="hit">Le sous-gonflage augmente la consommation, l'usure, et dégrade l'adhérence. Les premiers kilomètres à froid sont les plus polluants.</p>
+      </article>
+
+      <article class="card card--red">
+        <h3>Accidents et secours</h3>
+        <div class="row"><span>Urgence européen</span><b>112</b></div>
+        <div class="row"><span>SAMU</span><b>15</b></div>
+        <div class="row"><span>Pompiers</span><b>18</b></div>
+        <div class="row"><span>Police</span><b>17</b></div>
+        <div class="row"><span>Sourds, malentendants</span><b>114</b></div>
+        <p class="hit"><b>Protéger, alerter, secourir</b>, dans cet ordre. Ne <b>jamais déplacer</b> une victime sauf danger immédiat, ne <b>jamais retirer le casque</b> d'un motard, ne rien donner à boire.</p>
+      </article>
+
+    </div>
+  </section>
+
+  <section id="chiffres">
+    <h2>À réciter la veille</h2>
+    <ol class="numbers">
+      <li><b>35/40</b> pour réussir, 5 fautes maximum</li>
+      <li><b>50 / 80 / 110 / 130</b> les vitesses de base</li>
+      <li><b>50 km/h</b> dès que la visibilité tombe sous 50 m, partout</li>
+      <li><b>2 secondes</b> de distance de sécurité</li>
+      <li><b>0,5 g/l</b> — et <b>0,2 g/l</b> en permis probatoire</li>
+      <li><b>6 points sur 3 ans</b> en probatoire, 2 ans en conduite accompagnée</li>
+      <li><b>1,6 mm</b> de sculpture, <b>5 mm</b> d'écart max sur un essieu</li>
+      <li><b>1 m / 1,50 m</b> pour dépasser un cycliste</li>
+      <li><b>50 / 150 / 200 m</b> implantation des panneaux de danger</li>
+      <li><b>Protéger, alerter, secourir</b> — et le <b>112</b></li>
+    </ol>
+  </section>
+
+  <section id="regles">
+    <h2>Les quatre règles</h2>
+    <div class="rules">
+      <p class="rule"><b>Jamais de série sans « Mes erreurs » juste après.</b>Vingt minutes à relire tes fautes valent mieux qu'une série de plus.</p>
+      <p class="rule"><b>Les panneaux chaque jour, sans exception.</b>La reconnaissance visuelle s'acquiert par exposition répétée, pas par un bloc de révision.</p>
+      <p class="rule"><b>La régularité bat le volume.</b>Soixante-dix minutes tous les jours écrasent quatre heures le dimanche.</p>
+      <p class="rule"><b>Comprendre, pas mémoriser la question.</b>Si tu réponds juste sans savoir pourquoi, retourne au cours : à l'examen les questions sont différentes.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <button class="btn" id="reset" type="button">Effacer ma progression</button>
+  <p class="note" id="storage-note">Ta progression est enregistrée dans ce navigateur, sur cet appareil.</p>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var START = new Date(2026, 8, 19);   // J1 = samedi 19 septembre 2026
+  var EXAM  = new Date(2026, 9, 6);    // examen = mardi 6 octobre 2026
+  var KEY   = "code-30sept-v1";
+
+  var PANNEAUX = "15 min de série thématique « Signalisation »";
+  var ERREURS  = "« Mes erreurs » sur tout ce que j'ai fait aujourd'hui";
+
+  var DAYS = [
+    {n:1, d:"samedi 19 septembre", dur:"1 h 10", type:"cours", t:"Les panneaux (1/2)",
+     tasks:["Cours → Signalisation → Panneaux et panonceaux : les 10 premiers cours","Cours → Signalisation → Marquages au sol (1 cours), Agents (1 cours)","Fiches récap → Les panneaux","Mes erreurs, s'il y en a en attente"],
+     focus:"Démarrage volontairement léger. <b>Tu reverras la fiche des panneaux quatre fois d'ici l'examen</b> : la reconnaissance visuelle s'ancre par exposition répétée, jamais en une soirée."},
+    {n:2, d:"dimanche 20 septembre", dur:"1 h 25", type:"cours", t:"Les panneaux (2/2), feux et balises",
+     tasks:["Cours → Signalisation → Panneaux et panonceaux : les 8 derniers cours","Cours → Signalisation → Autres signalisations (1 cours), Feux (2 cours)","Séries thématiques → Réglementation","Mes erreurs"],
+     focus:"Signalisation bouclée, <b>23 cours</b>, le plus gros bloc de l'appli. Hiérarchie à retenir : agent, puis feux, puis panneaux, puis marquage au sol."},
+    {n:3, d:"lundi 21 septembre", dur:"1 h 30", type:"cours", t:"Vitesses, position, priorités",
+     tasks:["Cours → Circulation → Vitesse (5 cours)","Cours → Circulation → Position sur la chaussée (3 cours), Intersections et priorités (4 cours)","Fiches récap → La vitesse, puis Les distances","Mes erreurs"],
+     focus:"Le tableau des vitesses est le contenu le plus rentable de tout le code. <b>50 / 80 / 110 / 130</b>, et <b>50 km/h partout</b> dès que la visibilité tombe sous 50 m."},
+    {n:4, d:"mardi 22 septembre", dur:"1 h 30", type:"test", t:"Diagnostic — premier examen blanc", eb:1,
+     tasks:["Examens blancs → une série, en conditions réelles : chrono, mode avion, sans pause","Mes erreurs, intégralement, explication de chaque faute","Cours → Circulation → Croisement et dépassement (5 cours)","Fiches récap → Le dépassement","Noter le score et les 3 thèmes les plus fautifs"],
+     focus:"<b>Diagnostic, pas une note.</b> Tu n'as vu que la signalisation et les vitesses : attendu <b>24 à 29 sur 40</b>. Fait maintenant, il te dit où tu en es pendant qu'il reste deux semaines.", cls:"warn"},
+    {n:5, d:"mercredi 23 septembre", dur:"1 h 30", type:"cours", t:"Stationnement, feux du véhicule, météo",
+     tasks:["Cours → Circulation → Arrêt et stationnement (2 cours), Enjeux/statistiques (2 cours)","Cours → Route → Utilisation des feux (2 cours), Conditions météo dégradées (3 cours), Infrastructures (3 cours)","Fiches récap → Le stationnement, puis Les feux du véhicule","Séries thématiques → Réglementation","Mes erreurs"],
+     focus:"Portées <b>30 m et 100 m</b> · antibrouillard arrière <b>interdit sous la pluie seule</b> · l'arrêt est momentané, le stationnement prolongé : si l'arrêt est interdit, le stationnement l'est aussi."},
+    {n:6, d:"jeudi 24 septembre", dur:"1 h 35", type:"cours", t:"Alcool, fatigue, premiers secours",
+     tasks:["Cours → Conducteur → Éléments perturbateurs (8 cours)","Cours → Accidents/secours → Pannes/accidents (5 cours)","Fiches récap → Les panneaux, relecture rapide","Mes erreurs"],
+     focus:"<b>0,5 g/l</b>, <b>0,2 g/l</b> en probatoire, un verre vaut 0,20 à 0,25 g/l, et rien n'accélère l'élimination. Les secours se retiennent en dix minutes pour une question quasi garantie : <b>protéger, alerter, secourir</b>, et le <b>112</b>.", cls:"warn"},
+    {n:7, d:"vendredi 25 septembre", dur:"1 h 30", type:"cours", t:"Vision, communication, freinage",
+     tasks:["Cours → Conducteur → Vision (6 cours), Communication (3 cours)","Cours → Conducteur → Distance de freinage/d'arrêt (1 cours)","Fiches récap → La conduite","Séries thématiques → Conducteur","Mes erreurs"],
+     focus:"Acuité minimale <b>5/10</b> en vision binoculaire, code 01 sur le permis si la correction est nécessaire. Avec 10/10, un panneau d'agglomération se lit à <b>50 m</b>."},
+    {n:8, d:"samedi 26 septembre", dur:"1 h 25", type:"test", t:"Deuxième examen blanc", eb:2,
+     tasks:["Examens blancs → une série, en conditions réelles","Mes erreurs, intégralement","Cours → Conducteur → Temps de réaction (4 cours)","Séries thématiques → Réglementation, en rappel"],
+     focus:"Conducteur est bouclé, <b>22 cours</b>, le thème le plus lourd de l'examen. Vise <b>+4 points</b> par rapport à mardi : c'est la progression normale à ce stade."},
+    {n:9, d:"dimanche 27 septembre", dur:"1 h 50", type:"cours", t:"Autres usagers + écologie",
+     tasks:["Cours → Autres usagers → Usagers fragiles (3 cours), Véhicules lents et encombrants (5 cours)","Cours → Environnement → Conduite économique (3 cours), Pollution (3 cours)","Séries thématiques → Usagers, puis Ecologie","Mes erreurs"],
+     focus:"<b>1 m en ville, 1,50 m hors agglomération</b> pour dépasser un cycliste · trottinettes : 25 km/h et 14 ans · le frein moteur coupe l'injection, la consommation devient nulle."},
+    {n:10, d:"lundi 28 septembre", dur:"1 h 30", type:"cours", t:"Poste de conduite + sécurité",
+     tasks:["Cours → Prendre/quitter le véhicule (4 cours)","Cours → Sécurité passagers/véhicule → Accessoires ABS, ESP, GPS (5 cours), Installation et ceinture (3 cours)","Séries thématiques → Poste de Conduite","Mes erreurs"],
+     focus:"L'appuie-tête se règle au <b>sommet du crâne</b>, on ouvre la portière de la <b>main opposée</b> pour regarder derrière, et l'<b>ABS</b> permet de continuer à diriger sans forcément raccourcir le freinage.", cls:"soft"},
+    {n:11, d:"mardi 29 septembre", dur:"1 h 25", type:"cours", t:"Enfants, assurance, sanctions",
+     tasks:["Cours → Sécurité passagers/véhicule → Transport d'enfants (2 cours)","Cours → Divers → Assurances (3 cours), Sanctions (5 cours)","Fiches récap → La sécurité","Séries thématiques → Sécurité","Mes erreurs"],
+     focus:"Retenue enfant obligatoire jusqu'à <b>10 ans</b>, airbag désactivé pour un siège dos à la route à l'avant. Responsabilité civile = minimum légal ; rouler sans assurance est un <b>délit</b>.", cls:"soft"},
+    {n:12, d:"mercredi 30 septembre", dur:"1 h 35", type:"test", t:"Troisième examen blanc", eb:3,
+     tasks:["Examens blancs → une série, en conditions réelles","Mes erreurs, intégralement","Cours → Divers → Permis, formations et visites médicales (8 cours)","Fiches récap → Les panneaux, relecture rapide"],
+     focus:"Mi-parcours du bloc administratif. Attendu ce soir : <b>30 à 33 sur 40</b>. Probatoire <b>6 points sur 3 ans</b>, 2 ans en conduite accompagnée."},
+    {n:13, d:"jeudi 1er octobre", dur:"1 h 30", type:"cours", t:"Mécanique et tableau de bord",
+     tasks:["Cours → Mécanique/équipement → Éléments (10 cours), Commandes et témoins (3 cours)","Séries thématiques → Mécanique","Mes erreurs"],
+     focus:"<b>1,6 mm</b> de sculpture minimale, <b>5 mm</b> d'écart max sur un essieu, pneus neufs à l'arrière, voyant rouge et je m'arrête."},
+    {n:14, d:"vendredi 2 octobre", dur:"1 h 20", type:"cours", t:"Chargement, contrôle technique, aides",
+     tasks:["Cours → Mécanique/équipement → Entretien (1 cours)","Cours → Divers → Chargement (3 cours), Contrôle technique (1 cours)","Séries thématiques → Aides, puis Divers","Mes erreurs"],
+     focus:"<b>Les 141 cours sont bouclés ce soir.</b> À partir de demain, plus aucun contenu neuf : uniquement des examens blancs et la correction des fautes."},
+    {n:15, d:"samedi 3 octobre", dur:"1 h 30", type:"test", t:"Quatrième examen blanc + LA DÉCISION", eb:4,
+     tasks:["Examens blancs → une série, en conditions réelles","Mes erreurs, intégralement","Séries thématiques → Législatif","Décider : je maintiens le 6 octobre, ou je décale"],
+     focus:"<b>Point de décision, à trois jours de l'examen : tu peux encore annuler et reprogrammer.</b> 34 ou plus : tu maintiens. Entre 31 et 33 : jouable, les deux derniers jours comptent. <b>Sous 31 : décale d'une semaine plutôt que de brûler 30 €.</b>", cls:"warn"},
+    {n:16, d:"dimanche 4 octobre", dur:"1 h 25", type:"test", t:"Cinquième examen blanc", eb:5,
+     tasks:["Examens blancs → une série, en conditions réelles","Mes erreurs, intégralement","Séries thématiques → Autres","Fiches récap → Les panneaux, dernière relecture"],
+     focus:"Dernier examen blanc chronométré. <b>35 ou plus sur deux examens d'affilée</b> et tu y vas serein. Le seuil est 35 sur 40 : cinq fautes maximum, sans marge."},
+    {n:17, d:"lundi 5 octobre", dur:"40 min", type:"souffle", t:"Journée légère — ne rien forcer",
+     tasks:["Séries simples → Séries découverte : une série de 10 questions, sans chrono","Relire l'antisèche et les dix chiffres clés","Fiches récap → Nos conseils pour bien se préparer la veille","Vérifier la convocation et la pièce d'identité, repérer le trajet","Se coucher tôt"],
+     focus:"<b>Aucun examen blanc aujourd'hui.</b> Les séries découverte font 10 questions au lieu de 40 : le bon format pour rester en contact sans se mettre un mauvais score en tête la veille.", cls:"soft"},
+    {n:18, d:"mardi 6 octobre", dur:"30 min", type:"goal", t:"Jour J",
+     tasks:["Arriver 15 minutes avant, au minimum","Convocation et pièce d'identité valide","Lire chaque énoncé en entier : les pièges sont dans le libellé","Se souvenir qu'une question peut avoir plusieurs bonnes réponses, à cocher toutes"],
+     focus:"<b>Un retard entraîne le refus d'accès.</b> Contrôle d'identité systématique, salles sous vidéosurveillance. Résultat par e-mail sous 24 à 48 heures, code valable 5 ans.", cls:"warn"}
+  ];
+
+  var PHASES = [
+    {after:0,  h:"Signalisation et circulation", s:"du 19 au 25 septembre, avec le premier diagnostic"},
+    {after:8,  h:"Usagers, sécurité, administratif", s:"du 27 septembre au 2 octobre, beaucoup de points pour peu de matière"},
+    {after:14, h:"Simulation", s:"du 3 au 5 octobre, plus aucun cours neuf"},
+    {after:17, h:"L'examen", s:"mardi 6 octobre"}
+  ];
+
+  var SIGNS = {
+    cours:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#2b7fd4"/><circle cx="12" cy="12" r="10" fill="none" stroke="#ede9dc" stroke-width="1.6"/><path d="M12 7v10M8 11l4-4 4 4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+    test:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 22.5 21H1.5z" fill="#d4213c"/><path d="M12 6.6 19.2 19H4.8z" fill="#ede9dc"/><path d="M12 9.6v4.2" stroke="#191c1f" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16.4" r="1.1" fill="#191c1f"/></svg>',
+    souffle:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 22.2 12 12 22.2 1.8 12z" fill="#f0c419"/><path d="M12 5.5 18.5 12 12 18.5 5.5 12z" fill="none" stroke="#191c1f" stroke-width="1.3" opacity=".55"/></svg>',
+    goal:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="1.5" fill="#ede9dc"/><path d="M2 4h5v4H2zM12 4h5v4h-5zM7 8h5v4H7zM17 8h5v4h-5zM2 12h5v4H2zM12 12h5v4h-5zM7 16h5v4H7zM17 16h5v4h-5z" fill="#191c1f"/></svg>'
+  };
+
+  /* ---------- stockage ---------- */
+  var mem = {tasks:{}, scores:{}};
+  var canStore = false;
+  try{
+    window.localStorage.setItem("__probe","1");
+    window.localStorage.removeItem("__probe");
+    canStore = true;
+    var raw = window.localStorage.getItem(KEY);
+    if(raw){
+      var parsed = JSON.parse(raw);
+      if(parsed && typeof parsed === "object"){
+        mem.tasks  = (parsed.tasks  && typeof parsed.tasks  === "object") ? parsed.tasks  : {};
+        mem.scores = (parsed.scores && typeof parsed.scores === "object") ? parsed.scores : {};
+      }
+    }
+  }catch(e){ canStore = false; mem = {tasks:{}, scores:{}}; }
+
+  function save(){
+    if(!canStore) return;
+    try{ window.localStorage.setItem(KEY, JSON.stringify(mem)); }
+    catch(e){ canStore = false; showStorageNote(); }
+  }
+
+  /* ---------- dates ---------- */
+  function atMidnight(dt){ return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()); }
+  function daysBetween(a,b){ return Math.round((atMidnight(b) - atMidnight(a)) / 86400000); }
+
+  var today     = atMidnight(new Date());
+  var rawIndex  = daysBetween(START, today);                       // 0 = J1
+  var inWindow  = rawIndex >= 0 && rawIndex < DAYS.length;
+  var openIndex = Math.max(0, Math.min(DAYS.length - 1, rawIndex)); // toujours une carte ouverte
+  var daysLeft  = daysBetween(today, EXAM);
+
+  var cdEl = document.getElementById("cd"), cdLabel = document.getElementById("cd-label");
+  if(daysLeft > 1){ cdEl.textContent = daysLeft; cdLabel.textContent = "jours avant l'examen"; }
+  else if(daysLeft === 1){ cdEl.textContent = "1"; cdLabel.textContent = "jour avant l'examen"; }
+  else if(daysLeft === 0){ cdEl.textContent = "J"; cdLabel.textContent = "c'est aujourd'hui"; }
+  else { cdEl.textContent = "✓"; cdLabel.textContent = "examen passé"; }
+
+  /* ---------- rendu ---------- */
+  var daysEl = document.getElementById("days");
+  var roadEl = document.getElementById("road");
+  var roadScroll = document.getElementById("road-scroll");
+  var frag = document.createDocumentFragment();
+  var marks = [];
+
+  DAYS.forEach(function(day, i){
+    PHASES.forEach(function(p){
+      if(p.after !== i) return;
+      var w = document.createElement("div"); w.className = "phase";
+      var h = document.createElement("h3"); h.textContent = p.h;
+      var bar = document.createElement("span"); bar.className = "phase-bar";
+      var em = document.createElement("em"); em.textContent = p.s;
+      w.appendChild(h); w.appendChild(bar); w.appendChild(em);
+      frag.appendChild(w);
+    });
+
+    var det = document.createElement("details");
+    det.className = "day" + (inWindow && i === rawIndex ? " day--today" : "");
+    det.id = "j" + day.n;
+    det.open = (i === openIndex);
+    if(inWindow && i === rawIndex) det.setAttribute("data-today","1");
+
+    var sum = document.createElement("summary");
+    var sign = document.createElement("span");
+    sign.className = "sign";
+    sign.innerHTML = SIGNS[day.type] || "";
+    var main = document.createElement("span"); main.className = "day-main";
+    var meta = document.createElement("span"); meta.className = "day-meta";
+    var jn = document.createElement("span"); jn.className = "num"; jn.textContent = "J" + day.n;
+    var dt = document.createElement("span"); dt.textContent = day.d;
+    meta.appendChild(jn); meta.appendChild(dt);
+    if(day.dur){
+      var du = document.createElement("span");
+      du.className = "day-dur"; du.textContent = day.dur;
+      meta.appendChild(du);
+    }
+    if(inWindow && i === rawIndex){
+      var badge = document.createElement("span");
+      badge.textContent = "aujourd'hui";
+      badge.style.color = "var(--yellow)";
+      meta.appendChild(badge);
+      main.id = "today";
+    }
+    var ti = document.createElement("span"); ti.className = "day-title"; ti.textContent = day.t;
+    main.appendChild(meta); main.appendChild(ti);
+    var count = document.createElement("span"); count.className = "day-count";
+    sum.appendChild(sign); sum.appendChild(main); sum.appendChild(count);
+    det.appendChild(sum);
+
+    var body = document.createElement("div"); body.className = "day-body";
+    var ul = document.createElement("ul"); ul.className = "tasks";
+    day.tasks.forEach(function(txt, k){
+      var id = "t" + day.n + "-" + k;
+      var li = document.createElement("li");
+      var lab = document.createElement("label"); lab.className = "task";
+      var cb = document.createElement("input"); cb.type = "checkbox";
+      cb.checked = mem.tasks[id] === true;
+      var sp = document.createElement("span"); sp.textContent = txt;
+      cb.addEventListener("change", function(){
+        if(cb.checked) mem.tasks[id] = true; else delete mem.tasks[id];
+        save(); refresh();
+      });
+      lab.appendChild(cb); lab.appendChild(sp); li.appendChild(lab); ul.appendChild(li);
+    });
+    body.appendChild(ul);
+
+    if(day.focus){
+      var f = document.createElement("p");
+      f.className = "focus" + (day.cls ? " focus--" + day.cls : "");
+      f.innerHTML = day.focus;
+      body.appendChild(f);
+    }
+    det.appendChild(body);
+    frag.appendChild(det);
+
+    var mk = document.createElement("button");
+    mk.type = "button"; mk.className = "mark";
+    mk.setAttribute("data-type", day.type);
+    mk.textContent = (day.type === "goal") ? "J" : String(day.n);
+    mk.setAttribute("aria-label", "Aller au jour " + day.n + ", " + day.d);
+    if(inWindow && i === rawIndex) mk.setAttribute("aria-current", "date");
+    mk.addEventListener("click", function(){
+      var target = document.getElementById("j" + day.n);
+      target.open = true;
+      target.scrollIntoView({behavior:"smooth", block:"center"});
+      target.querySelector("summary").focus();
+    });
+    roadEl.appendChild(mk);
+    marks.push(mk);
+  });
+  daysEl.appendChild(frag);
+
+  /* ---------- examens blancs ---------- */
+  var tbody = document.getElementById("scores");
+
+  var first = document.createElement("tr");
+  first.innerHTML =
+    '<td>À froid, sans révision</td>' +
+    '<td><span class="num">22</span> <span class="of40">/ 40</span></td>' +
+    '<td class="bar-cell"><span class="bar"><span class="bar-fill" style="width:55%"></span><span class="bar-goal"></span></span></td>';
+  tbody.appendChild(first);
+
+  DAYS.filter(function(d){ return d.eb; }).forEach(function(day){
+    var tr = document.createElement("tr");
+
+    var c1 = document.createElement("td");
+    c1.textContent = "J" + day.n + " · " + day.d.replace(/^\w+ /, "");
+
+    var c2 = document.createElement("td");
+    var inp = document.createElement("input");
+    inp.type = "number"; inp.min = "0"; inp.max = "40"; inp.step = "1";
+    inp.inputMode = "numeric"; inp.className = "score"; inp.placeholder = "—";
+    inp.setAttribute("aria-label", "Score sur 40 de l'examen blanc du jour " + day.n);
+    var stored = mem.scores["s" + day.n];
+    if(typeof stored === "number") inp.value = String(stored);
+    var of = document.createElement("span"); of.className = "of40"; of.textContent = " / 40";
+    c2.appendChild(inp); c2.appendChild(of);
+
+    var c3 = document.createElement("td"); c3.className = "bar-cell";
+    var bar = document.createElement("span"); bar.className = "bar";
+    var fill = document.createElement("span"); fill.className = "bar-fill";
+    var goal = document.createElement("span"); goal.className = "bar-goal";
+    bar.appendChild(fill); bar.appendChild(goal); c3.appendChild(bar);
+
+    function clamp(){
+      if(inp.value === "") return null;
+      var v = parseInt(inp.value, 10);
+      if(isNaN(v)) return null;
+      return Math.max(0, Math.min(40, v));
+    }
+    function draw(){
+      var v = clamp();
+      if(v === null){ fill.style.width = "0"; fill.removeAttribute("data-pass"); return; }
+      fill.style.width = (v / 40 * 100) + "%";
+      if(v >= 35) fill.setAttribute("data-pass","1"); else fill.removeAttribute("data-pass");
+    }
+    inp.addEventListener("input", function(){
+      var v = clamp();
+      if(v === null) delete mem.scores["s" + day.n]; else mem.scores["s" + day.n] = v;
+      save(); draw();
+    });
+    inp.addEventListener("blur", function(){
+      var v = clamp();
+      inp.value = (v === null) ? "" : String(v);   // corrige un 44 saisi à la main
+      draw();
+    });
+    draw();
+
+    tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3);
+    tbody.appendChild(tr);
+  });
+
+  /* ---------- compteurs ---------- */
+  var meterFill = document.getElementById("meter-fill");
+  var meterText = document.getElementById("meter-text");
+
+  function refresh(){
+    var done = 0, total = 0;
+    DAYS.forEach(function(day, i){
+      var dd = 0;
+      day.tasks.forEach(function(_, k){ if(mem.tasks["t" + day.n + "-" + k]) dd++; });
+      done += dd; total += day.tasks.length;
+      var det = document.getElementById("j" + day.n);
+      var c = det.querySelector(".day-count");
+      c.textContent = dd + "/" + day.tasks.length;
+      if(dd === day.tasks.length) c.setAttribute("data-full","1"); else c.removeAttribute("data-full");
+      if(dd === day.tasks.length) marks[i].setAttribute("data-done","1"); else marks[i].removeAttribute("data-done");
+    });
+    var pct = total ? (done / total * 100) : 0;
+    meterFill.style.width = pct + "%";
+    meterText.textContent = done + " / " + total + " tâches";
+    meterFill.parentNode.setAttribute("role","progressbar");
+    meterFill.parentNode.setAttribute("aria-valuemin","0");
+    meterFill.parentNode.setAttribute("aria-valuemax", String(total));
+    meterFill.parentNode.setAttribute("aria-valuenow", String(done));
+    meterFill.parentNode.setAttribute("aria-label","Tâches accomplies");
+  }
+  refresh();
+
+  /* ---------- centrer la route ---------- */
+  function centerRoad(){
+    var mk = marks[openIndex];
+    if(!mk) return;
+    var left = mk.offsetLeft - (roadScroll.clientWidth / 2) + (mk.offsetWidth / 2);
+    roadScroll.scrollLeft = Math.max(0, left);
+  }
+  centerRoad();
+  if(document.fonts && document.fonts.ready && typeof document.fonts.ready.then === "function"){
+    document.fonts.ready.then(centerRoad);
+  }
+  window.addEventListener("resize", centerRoad);
+
+  /* ---------- lien « Aujourd'hui » ---------- */
+  document.getElementById("jump").addEventListener("click", function(ev){
+    ev.preventDefault();
+    var det = document.getElementById("j" + DAYS[openIndex].n);
+    det.open = true;
+    det.scrollIntoView({behavior:"smooth", block:"start"});
+  });
+
+  /* ---------- réinitialisation ---------- */
+  document.getElementById("reset").addEventListener("click", function(){
+    if(!window.confirm("Effacer toutes les cases cochées et tous les scores ?")) return;
+    mem = {tasks:{}, scores:{}};
+    if(canStore){ try{ window.localStorage.removeItem(KEY); }catch(e){} }
+    window.location.reload();
+  });
+
+  function showStorageNote(){
+    document.getElementById("storage-note").textContent =
+      "Ce navigateur bloque l'enregistrement local : ta progression tiendra le temps de l'onglet, mais sera perdue au rechargement. Déploie la page sur ton propre domaine pour qu'elle soit conservée.";
+  }
+  if(!canStore) showStorageNote();
+})();
+</script>
+</body>
+</html>
